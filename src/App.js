@@ -12,46 +12,46 @@ class App extends Component {
       data: {},
       led: false,
       inputValue: 0,
-      enableTimers: true,
-      events: {
-          "timers" : {} //{id:period} => {2:5} should be passed to the ReactInterval Component callback and period props
-        },
-      values:{} //{dataElementName:value}
+      enableTimers: false,
+      valuesIn:{}, //{dataElementName:value}
+      valuesOut:{} //{dataElementName:value}
 
     }
-    this.addEvents = this.addEvents.bind(this);
+    this.startSimulation = this.startSimulation.bind(this);
     this.handleOnChange = this.handleOnChange.bind(this);
     this.lightLed = this.lightLed.bind(this);
     this.getInputValue = this.getInputValue.bind(this);
     this.createInputDisplay = this.createInputDisplay.bind(this);
     this.setValue = this.setValue.bind(this);
+    this.setBoolValue = this.setBoolValue.bind(this);
     this.createOutputDisplay = this.createOutputDisplay.bind(this);
-    this.compile = this.compile.bind(this);
+    this.requestUpdates = this.requestUpdates.bind(this);
     this.disableTimers = this.disableTimers.bind(this);
     this.sendUpdates = this.sendUpdates.bind(this);
   }
 
   componentDidMount(){
-    setTimeout(this.disableTimers, 10000)
+    //setTimeout(this.disableTimers, 20000)
   }
 
   componentWillMount(){
-      axios.defaults.baseURL = 'http://autosar-studio-backend.herokuapp.com';
+      axios.defaults.baseURL = 'http://localhost:5000';
       axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
       axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
       let data = new FormData();
-      var tempArray={} 
-      data.append('project_id', 12);
+      var tempArrayIn={} 
+      var tempArrayOut={} 
+      data.append('project_id', 15);
       axios.post('/simulate/get/', data)
       .then(results =>{
       Object.keys(results.data.inputs).map((key,i) => {
       return(
         results.data.inputs[key].map((input,j)=>{
             if(input.type === "Boolean" ){
-              return tempArray[input.name] = false 
+              return tempArrayIn[input.name] = false 
             }
             else{
-              return tempArray[input.name] = 0
+              return tempArrayIn[input.name] = 0
             }
         })
         )
@@ -61,17 +61,18 @@ class App extends Component {
       return(
         results.data.outputs[key].map((output,j)=>{
             if(output.type === "Boolean"){
-              return tempArray[output.name] = false 
+              return tempArrayOut[output.name] = false 
             }
             else{
-              return tempArray[output.name] = 0
+              return tempArrayOut[output.name] = 0
             }
         })
         )
     })
     this.setState({
       data: results.data,
-      values: tempArray
+      valuesIn: tempArrayIn,
+      valuesOut: tempArrayOut
     })
     })   
   }
@@ -95,20 +96,30 @@ class App extends Component {
   }
 
 //Function called by the React Interval Component
-  compile(period,eventId){
-    console.log(period," a77 ",eventId)
-    axios.defaults.baseURL = 'http://autosar-studio-backend.herokuapp.com';
+  requestUpdates(){
+    axios.defaults.baseURL = 'http://localhost:5000';
     axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
     axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
     let data = new FormData();
-    data.append('runnable_id', eventId);
+    data.append('project_id', 15);
   
-    axios.post('/simulate/run/', data)
+    axios.post('/simulate/getvalues/', data)
     .then(results =>{
-     // console.log(results)
+     console.log("request ",results)
       Object.keys(results.data).map((key,i) => {
+            console.log("state ",this.state)
             var tempCopy =  this.state
-            tempCopy.values[key] = results.data[key]
+            if (results.data[key] === "True")
+            {
+              tempCopy.valuesOut[key] = true
+            }
+            else if (results.data[key] === "False")
+            {
+              tempCopy.valuesOut[key] = false
+            }
+            else {
+              tempCopy.valuesOut[key] = results.data[key]
+            }
             this.setState(tempCopy)
             return 0
     })
@@ -117,6 +128,19 @@ class App extends Component {
 
   sendUpdates(){
     //Function to send the updated values to the Back end
+    var updatedInputs = this.state.valuesIn
+
+    axios.defaults.baseURL = 'http://localhost:5000';
+    axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
+    axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
+    let data = new FormData();
+    data.append('project_id', 15);
+  
+    axios.post('/simulate/setvalues/', data)
+    .then(results =>{
+      console.log(results)
+    })
+
   }
 
   printCounter2(){
@@ -126,28 +150,34 @@ class App extends Component {
     })
   }
 
-  getInputValue(event,k,i){
+  getInputValue(event,k,i,name){
     var stateCopy = Object.assign({},this.state);
-    stateCopy.data.inputs[k][i].val = event.target.value;
+    stateCopy.valuesIn[name] = event.target.value;
     this.setState(stateCopy);
   }
 
-  setValue(e,k,i){
+  setValue(e,name){
     //console.log(e.target.value)
     var stateCopy = Object.assign({},this.state);
-    stateCopy.data.inputs[k][i].val = e.target.value;
+    stateCopy.valuesIn[name] = e.target.value;
+    this.setState(stateCopy);
+  }
+
+  setBoolValue(e,name){
+    //console.log(e.target.value)
+    var stateCopy = Object.assign({},this.state);
+    stateCopy.valuesIn[name] = e.target.checked;
     this.setState(stateCopy);
   }
 
   createInputDisplay(input,index,key){
-   //console.log("input is:",key)
     if(input.type === 'Boolean'){
       return(
         <div>
           <div className="switchContainer">
             <h3>Port: {key} </h3>
             <label className="switch">
-              <input type="checkbox"/>
+              <input type="checkbox" onChange={(e)=>this.setBoolValue(e,input.name)}/>
               <div className="slider round"></div>
             </label>
             <div><h5>{input.name}</h5></div>
@@ -163,8 +193,8 @@ class App extends Component {
           <div className="keyContainer">
             <h3>Port: {key} </h3>
             </div>
-            <input type="range"  min="0" max="100" value={this.state.values[input.name]} step="1" onChange={(e)=>this.setValue(e,key,index)}/>
-            <input type="text" value={this.state.values[input.name]} onChange= {(e) => this.getInputValue(e,key,index)}/>
+            <input type="range"  min="0" max="100" value={this.state.valuesIn[input.name]} step="1" onChange={(e)=>this.setValue(e,key,index,input.name)}/>
+            <input type="text" value={this.state.valuesIn[input.name]} onChange= {(e) => this.getInputValue(e,input.name)}/>
             <div><h5>{input.name}</h5></div>
           </div>
         </div>
@@ -182,7 +212,7 @@ class App extends Component {
             <div className="keyContainer">
               <h3>Port: {key} </h3>
             </div>
-            <div className={this.state.values[output.name] === false? 'redLed':'redLed ledActive'}></div>
+            <div className={this.state.valuesOut[output.name] === false? 'redLed':'redLed ledActive'}></div>
             <span>{output.name}</span>
           </div>
           <hr/>
@@ -195,7 +225,7 @@ class App extends Component {
             <div className="keyContainer">
               <h3>Port: {key} </h3>
             </div>
-            <h3>{this.state.values[output.name]}</h3>
+            <h3>{this.state.valuesOut[output.name]}</h3>
             <span>{output.name}</span>
           </div>
         <hr/>
@@ -205,49 +235,43 @@ class App extends Component {
   }
 
 //Function called on click on the start simuation button
-  addEvents(e){
-    axios.defaults.baseURL = 'http://autosar-studio-backend.herokuapp.com';
+  startSimulation(e){
+    axios.defaults.baseURL = 'http://localhost:5000';
     axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
     axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
     let data = new FormData();
-    data.append('project_id', 12);
+    data.append('project_id', 15);
     data.append('values', JSON.stringify({}));
     axios.post('/simulate/start/', data)
     .then(results =>{
-      //console.log("results: ",results)
-      var tempCopy =  this.state
-      tempCopy.events.timers = results.data //Here w get the {id:period}
-      this.setState(tempCopy)
+      console.log("results: ",results)
+      this.setState({
+        enableTimers: true
+    })
+      // var tempCopy =  this.state
+      // tempCopy.events.timers = results.data //Here w get the {id:period}
+      // this.setState(tempCopy)
   })
   }
 
   disableTimers(){
-    console.log("ethbat makank")
+    //console.log("ethbat makank")
     this.setState({
       enableTimers: false
     })
 
   }
   render(){
-    console.log(this.state)
     return (
         <div>
-           {
-            Object.keys(this.state.events.timers).map((eventID,i) => {
-            return(
-              <div key={i}>
-                <ReactInterval timeout={this.state.events.timers[eventID]*1000} enabled={this.state.enableTimers} callback={(e) => this.compile(this.state.events.timers[eventID],eventID)}/>
-              </div>
-            )
-            })
-           }
+          <ReactInterval timeout={25} enabled={this.state.enableTimers} callback={this.requestUpdates}/>
           <div>
             <div>
               <Header/>
             </div>
             <div className="bodycontainer">
               <div className="inputContainer">
-                <div className="simulationButtonContainer"><button onClick={this.addEvents} className="simulationButton">Start Simulation</button></div>
+                <div className="simulationButtonContainer"><button onClick={this.startSimulation} className="simulationButton">Start Simulation</button></div>
                 <div className="simulationButtonContainer"><button onClick={this.sendUpdates} className="simulationButton">Apply</button></div>
                 {
                   this.state.data.inputs !== undefined ?
@@ -288,13 +312,3 @@ class App extends Component {
 }
 
 export default App;
-
-// axios.defaults.baseURL = 'http://autosar-studio-backend.herokuapp.com';
-// axios.defaults.headers.common['Authorization'] = "Token 286d3544d83e8a9f65770baaf25d8875c26de7b9";
-// axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
-// let data = new FormData();
-// data.append('swc_id', this.state.selectedComponent);
-// axios.post('/arxml/datatype/add', data)
-// .then(results =>{
-//   console.log(results)
-// })
