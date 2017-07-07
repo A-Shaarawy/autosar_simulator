@@ -1,0 +1,11 @@
+.HeaderContainer{
+  height: 60px;
+  background: linear-gradient(to left,#043186 0%,#33C1FF 100%) left bottom #f2f2f2 no-repeat;
+  background-size:100% 3px ;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.Logo{
+  height: 30px;
+}
