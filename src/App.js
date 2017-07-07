@@ -248,9 +248,6 @@ class App extends Component {
       this.setState({
         enableTimers: true
     })
-      // var tempCopy =  this.state
-      // tempCopy.events.timers = results.data //Here w get the {id:period}
-      // this.setState(tempCopy)
   })
   }
 
