@@ -49,7 +49,7 @@ class App extends Component {
       let data = new FormData();
       var tempArrayIn={} 
       var tempArrayOut={} 
-      data.append('project_id', 15);
+      data.append('project_id', 16);
       axios.post('/simulate/get/', data)
       .then(results =>{
       Object.keys(results.data.inputs).map((key,i) => {
@@ -109,7 +109,7 @@ class App extends Component {
     axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
     axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
     let data = new FormData();
-    data.append('project_id', 15);
+    data.append('project_id', 16);
   
     axios.post('/simulate/getvalues/', data)
     .then(results =>{
@@ -142,7 +142,8 @@ class App extends Component {
     axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
     axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
     let data = new FormData();
-    data.append('project_id', 15);
+    data.append('project_id', 16);
+    data.append('values', JSON.stringify(this.state.valuesIn));
   
     axios.post('/simulate/setvalues/', data)
     .then(results =>{
@@ -176,6 +177,7 @@ class App extends Component {
     var stateCopy = Object.assign({},this.state);
     stateCopy.valuesIn[name] = e.target.checked;
     this.setState(stateCopy);
+    console.log(this.state)
   }
 
   createInputDisplay(input,index,key){
@@ -351,8 +353,8 @@ class App extends Component {
     axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
     axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
     let data = new FormData();
-    data.append('project_id', 15);
-    data.append('values', JSON.stringify({}));
+    data.append('project_id', 16);
+    data.append('values', JSON.stringify(this.state.valuesIn));
     axios.post('/simulate/start/', data)
     .then(results =>{
       console.log("results: ",results)
