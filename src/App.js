@@ -14,7 +14,15 @@ class App extends Component {
       inputValue: 0,
       enableTimers: false,
       valuesIn:{}, //{dataElementName:value}
-      valuesOut:{} //{dataElementName:value}
+      valuesOut:{}, //{dataElementName:value}
+      integer_types:{
+        "SInt8": { "lower": "-128", "upper": "127" },
+        "UInt8": { "lower": "0", "upper": "255" },
+        "SInt16": { "lower": "-32768", "upper": "32767" },
+        "UInt16": { "lower": "0", "upper": "65535" },
+        "SInt32": { "lower": "-2147483648", "upper": "2147483647" },
+        "UInt32": { "lower": "0", "upper": "4294967295" }
+       }
 
     }
     this.startSimulation = this.startSimulation.bind(this);
@@ -185,21 +193,124 @@ class App extends Component {
           <hr/>
         </div>
       )
-    }else{
+    }
+    else if(input.type === "SInt8"){
       return(
-        <div>
+        <div> 
         <div>
           <div className="sliderContainer">
           <div className="keyContainer">
             <h3>Port: {key} </h3>
             </div>
-            <input type="range"  min="0" max="100" value={this.state.valuesIn[input.name]} step="1" onChange={(e)=>this.setValue(e,key,index,input.name)}/>
+            <input type="range"  min={this.state.integer_types.SInt8.lower} max={this.state.integer_types.SInt8.upper} value={this.state.valuesIn[input.name]} step="1" onChange={(e)=>this.setValue(e,key,index,input.name)}/>
             <input type="text" value={this.state.valuesIn[input.name]} onChange= {(e) => this.getInputValue(e,input.name)}/>
             <div><h5>{input.name}</h5></div>
           </div>
         </div>
         <hr/>
         </div>
+      )
+    }
+    else if(input.type === "UInt8"){
+      return(
+        <div> 
+        <div>
+          <div className="sliderContainer">
+          <div className="keyContainer">
+            <h3>Port: {key} </h3>
+            </div>
+            <input type="range"  min={this.state.integer_types.UInt8.lower} max={this.state.integer_types.UInt8.upper} value={this.state.valuesIn[input.name]} step="1" onChange={(e)=>this.setValue(e,key,index,input.name)}/>
+            <input type="text" value={this.state.valuesIn[input.name]} onChange= {(e) => this.getInputValue(e,input.name)}/>
+            <div><h5>{input.name}</h5></div>
+          </div>
+        </div>
+        <hr/>
+        </div>
+      )
+    }
+    else if(input.type === "SInt16"){
+      return(
+         <div> 
+        <div>
+          <div className="sliderContainer">
+          <div className="keyContainer">
+            <h3>Port: {key} </h3>
+            </div>
+            <input type="range"  min={this.state.integer_types.SInt16.lower} max={this.state.integer_types.SInt16.upper} value={this.state.valuesIn[input.name]} step="1" onChange={(e)=>this.setValue(e,key,index,input.name)}/>
+            <input type="text" value={this.state.valuesIn[input.name]} onChange= {(e) => this.getInputValue(e,input.name)}/>
+            <div><h5>{input.name}</h5></div>
+          </div>
+        </div>
+        <hr/>
+        </div>
+      )
+    }
+    else if(input.type === "UInt16"){
+      return(
+        <div> 
+        <div>
+          <div className="sliderContainer">
+          <div className="keyContainer">
+            <h3>Port: {key} </h3>
+            </div>
+            <input type="range"  min={this.state.integer_types.UInt16.lower} max={this.state.integer_types.UInt16.upper} value={this.state.valuesIn[input.name]} step="1" onChange={(e)=>this.setValue(e,key,index,input.name)}/>
+            <input type="text" value={this.state.valuesIn[input.name]} onChange= {(e) => this.getInputValue(e,input.name)}/>
+            <div><h5>{input.name}</h5></div>
+          </div>
+        </div>
+        <hr/>
+        </div>
+      )
+    }
+    else if(input.type ==="SInt32"){
+      return(
+        <div> 
+        <div>
+          <div className="sliderContainer">
+          <div className="keyContainer">
+            <h3>Port: {key} </h3>
+            </div>
+            <input type="range"  min={this.state.integer_types.SInt32.lower} max={this.state.integer_types.SInt32.upper} value={this.state.valuesIn[input.name]} step="1" onChange={(e)=>this.setValue(e,key,index,input.name)}/>
+            <input type="text" value={this.state.valuesIn[input.name]} onChange= {(e) => this.getInputValue(e,input.name)}/>
+            <div><h5>{input.name}</h5></div>
+          </div>
+        </div>
+        <hr/>
+        </div>
+      )
+    }
+    else if(input.type ==="UInt32"){
+      return(
+           <div> 
+        <div>
+          <div className="sliderContainer">
+          <div className="keyContainer">
+            <h3>Port: {key} </h3>
+            </div>
+            <input type="range"  min={this.state.integer_types.UInt32.lower} max={this.state.integer_types.UInt32.upper} value={this.state.valuesIn[input.name]} step="1" onChange={(e)=>this.setValue(e,key,index,input.name)}/>
+            <input type="text" value={this.state.valuesIn[input.name]} onChange= {(e) => this.getInputValue(e,input.name)}/>
+            <div><h5>{input.name}</h5></div>
+          </div>
+        </div>
+        <hr/>
+        </div>     
+      )
+    }
+    else{
+      return(
+        <div> 
+        <div>
+          <div className="sliderContainer">
+          <div className="keyContainer">
+            <h3>Port: {key} </h3>
+            </div>
+            <input type="range"  min="-1000000" max="1000000" step="0.001" value={this.state.valuesIn[input.name]} step="1" onChange={(e)=>this.setValue(e,key,index,input.name)}/>
+            <input type="text" value={this.state.valuesIn[input.name]} onChange= {(e) => this.getInputValue(e,input.name)}/>
+            <div><h5>{input.name}</h5></div>
+          </div>
+        </div>
+        <hr/>
+        </div>   
       )
     }
   }
