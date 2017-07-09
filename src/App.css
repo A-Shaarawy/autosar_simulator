@@ -1,42 +1,49 @@
-.redLed{
-  margin: 0 auto;
-  width: 24px;
-  height: 24px;
-  background-color: #A00;
-  border-radius: 50%;
-  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
+body{
+  font-family: 'Raleway', sans-serif !important;
 }
 
-.redLed.ledActive{
-  margin: 0 auto;
-  width: 24px;
-  height: 24px;
-  background-color: #F00;
-  border-radius: 50%;
-  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
+@font-face {
+    font-family: display;
+    src: url(./DisplayFont/digital-7.ttf);
+}
+.redLed i{
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 50px;
+  color:#243042;
+  transition: all 0.5s
+}
+
+.redLed.ledActive i{
+  color:white;
+  -webkit-animation: neon2 1.5s ease-in-out infinite alternate;
+  -moz-animation: neon2 1.5s ease-in-out infinite alternate;
+  animation: neon2 1.5s ease-in-out infinite alternate;
 }
 
 .bodycontainer{
   display: flex;
+  height: 71vh;
 }
 
 .bodycontainer .inputContainer{
-  height: 500px;
   width: 50%;
   overflow-y: scroll;
   text-align: center;
+  background: #f2f2f2;
+  border-right: 2px solid #b3b3b3;
 }
 
 .bodycontainer .outputContainer{
-  height: 500px;
   width:50%;
   overflow-y: scroll;
-  text-align: CENTER
+  text-align: center;
+  background: #e6e6e6;
+  border-left: 2px solid #b3b3b3;
 }
 
 .bodycontainer .inputContainer .switchContainer{
-  margin-top: 10px;
-  margin-bottom: 10px;
+  padding: 50px 0px;
 }
 
 .bodycontainer .inputContainer .sliderContainer{
@@ -50,21 +57,52 @@
   border-bottom: 3px #1972BC solid;
   background-color: #F2F2F2;
 }
-
+.buttonsAreaSimulator{
+  height: 5.6vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9f9f9;
+}
+.simulationButtonContainer{
+  margin: 0px 20px;
+}
+.simulationButtonContainer button{
+  background: none;
+  border: 2px solid #243042;
+  border-radius: 20px;
+  color: #243042;
+  transition: all 0.3s ease-in-out;
+  font-size:12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 5px 15px;
+}
+.simulationButtonContainer button:hover{
+  background: #33c1ff;
+  color: white;
+  border: 2px solid #33c1ff;
+}
 .logContainer{
-  height:104px;
+  height:15vh;
   margin-top: 1px ;
   width:100%;
   overflow-y: scroll;
-  background-color: #E6E6E6;
+  background-color: #21262d;
   box-shadow: 0px 0px 2px #888888;
 }
-
+.logContainer p{
+  color:#33c1ff;
+  font-size: 10px;
+}
 .switch {
   position: relative;
-  display: inline-block;
+  display: block;
+  margin: auto;
   width: 60px;
   height: 34px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 /* Hide default HTML checkbox */
@@ -78,7 +116,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: #243042;
   -webkit-transition: .4s;
   transition: .4s;
 }
@@ -96,7 +134,7 @@
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: #33c1ff;
 }
 
 input:focus + .slider {
@@ -116,4 +154,91 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+.digitalDisplay h3{
+  display: inline-block;
+  background: #243042;
+  color: #33c1ff;
+  font-size: 80px;
+  margin: 0;
+  font-family:"display";
+  border-radius: 6px;
+  padding: 20px 20px 10px 20px;
+  text-shadow: 0 0 15px #33c1ff;
+  margin: 10px 0px;
+}
+.keyContainer h3{
+  margin: 0;
+}
+div.outputContainer > div:nth-of-type(odd) {
+    background: #d8d8d8;
+}
+div.inputContainer > div:nth-of-type(odd) {
+    background: #f9f9f9;
+}
+.outputContainer hr{
+  border: 1px solid #b3b3b3;
+  margin: 0;
+}
+.inputContainer hr{
+  border: 1px solid #b3b3b3;
+  margin: 0;
+}
+.display{
+  padding: 50px 0px;
+}
+.display{
+  padding: 50px 0px;
+}
+.inputSlider{
+  height: 50px;
+}
+.sliderInputs{
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.sliderInputs input{
+  width: 30%;
+}
+.switchContainer h3{
+  margin: 0px;
+}
+.inputSlider {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  width: 10rem;
+  height: 0.25rem;
+  outline: none;
+  border-radius: 0.25rem;
+  background-color: #243042;
+  margin: 15px 0px;
+}
+.inputSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+          appearance: none;
+  width: 1rem;
+  height: 1rem;
+  background-color: #243042;
+  border-radius: 1rem;
+  cursor: pointer;
+}
+
+@keyframes neon2 {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #4ad0ff, 0 0 70px #4ad0ff, 0 0 80px #4ad0ff, 0 0 100px #4ad0ff, 0 0 150px #4ad0ff;
+  }
+  to {
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #4ad0ff, 0 0 35px #4ad0ff, 0 0 40px #4ad0ff, 0 0 50px #4ad0ff, 0 0 75px #4ad0ff;
+  }
+}
+@-webkit-keyframes neon2 {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #4ad0ff, 0 0 70px #4ad0ff, 0 0 80px #4ad0ff, 0 0 100px #4ad0ff, 0 0 150px #4ad0ff;
+  }
+  to {
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #4ad0ff, 0 0 35px #4ad0ff, 0 0 40px #4ad0ff, 0 0 50px #4ad0ff, 0 0 75px #4ad0ff;
+  }
 }
