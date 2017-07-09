@@ -11,6 +11,7 @@ class App extends Component {
     this.state={
       data: {},
       led: false,
+      startSimulationMode:false,
       inputValue: 0,
       enableTimers: false,
       valuesIn:{}, //{dataElementName:value}
@@ -43,7 +44,7 @@ class App extends Component {
   }
 
   componentWillMount(){
-      axios.defaults.baseURL = 'http://localhost:5000';
+      axios.defaults.baseURL = 'http://autosar-studio-backend.herokuapp.com';
       axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
       axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
       let data = new FormData();
@@ -56,7 +57,7 @@ class App extends Component {
       return(
         results.data.inputs[key].map((input,j)=>{
             if(input.type === "Boolean" ){
-              return tempArrayIn[input.name] = false 
+              return tempArrayIn[input.name] = false
             }
             else{
               return tempArrayIn[input.name] = 0
@@ -69,7 +70,7 @@ class App extends Component {
       return(
         results.data.outputs[key].map((output,j)=>{
             if(output.type === "Boolean"){
-              return tempArrayOut[output.name] = false 
+              return tempArrayOut[output.name] = false
             }
             else{
               return tempArrayOut[output.name] = 0
@@ -82,7 +83,7 @@ class App extends Component {
       valuesIn: tempArrayIn,
       valuesOut: tempArrayOut
     })
-    })   
+    })
   }
 
   lightLed(event){
@@ -110,7 +111,6 @@ class App extends Component {
     axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
     let data = new FormData();
     data.append('project_id', 17);
-  
     axios.post('/simulate/getvalues/', data)
     .then(results =>{
      console.log("request ",results)
@@ -144,7 +144,6 @@ class App extends Component {
     let data = new FormData();
     data.append('project_id', 17);
     data.append('values', JSON.stringify(this.state.valuesIn, Object.keys(this.state.valuesIn).sort()));
-  
     axios.post('/simulate/setvalues/', data)
     .then(results =>{
       console.log(results)
@@ -191,7 +190,7 @@ class App extends Component {
               <input type="checkbox" onChange={(e)=>this.setBoolValue(e,input.name)}/>
               <div className="slider round"></div>
             </label>
-            <div><h5>{input.name}</h5></div>
+            <span>{input.name}</span>
           </div>
           <hr/>
         </div>
@@ -216,15 +215,17 @@ class App extends Component {
     }
     else{
       return(
-        <div> 
+        <div>
         <div>
           <div className="sliderContainer">
           <div className="keyContainer">
             <h3>Port: {key} </h3>
             </div>
-            <input type="range"  min={this.state.integer_types[input.type].lower} max={this.state.integer_types[input.type].upper} value={this.state.valuesIn[input.name]} step="1" onChange={(e)=>this.setValue(e,input.name)}/>
-            <input type="text" value={this.state.valuesIn[input.name]} onChange= {(e) => this.getInputValue(e,input.name)}/>
-            <div><h5>{input.name}</h5></div>
+            <div className="sliderInputs">
+              <input className="inputSlider" type="range"  min={this.state.integer_types[input.type].lower} max={this.state.integer_types[input.type].upper} value={this.state.valuesIn[input.name]} step="1" onChange={(e)=>this.setValue(e,key,index,input.name)}/>
+              <input className="inputBSlider" type="text" value={this.state.valuesIn[input.name]} onChange= {(e) => this.getInputValue(e,input.name)}/>
+            </div>
+            <span>{input.name}</span>
           </div>
         </div>
         <hr/>
@@ -237,11 +238,11 @@ class App extends Component {
     if(output.type === 'Boolean'){
       return(
         <div>
-          <div>
+          <div className="display">
             <div className="keyContainer">
               <h3>Port: {key} </h3>
             </div>
-            <div className={this.state.valuesOut[output.name] === false? 'redLed':'redLed ledActive'}></div>
+            <div className={this.state.valuesOut[output.name] === false? 'redLed':'redLed ledActive'}><i className="fa fa-circle" aria-hidden="true"></i></div>
             <span>{output.name}</span>
           </div>
           <hr/>
@@ -254,7 +255,7 @@ class App extends Component {
             <div className="keyContainer">
               <h3>Port: {key} </h3>
             </div>
-            <h3>{this.state.valuesOut[output.name]}</h3>
+            <div className="digitalDisplay"><h3>{this.state.valuesOut[output.name]}</h3></div>
             <span>{output.name}</span>
           </div>
         <hr/>
@@ -275,7 +276,8 @@ class App extends Component {
     .then(results =>{
       console.log("results: ",results)
       this.setState({
-        enableTimers: true
+        enableTimers: true,
+        startSimulationMode:true
     })
   })
   }
@@ -295,10 +297,13 @@ class App extends Component {
             <div>
               <Header/>
             </div>
+            <div className="buttonsAreaSimulator">
+              <div className="simulationButtonContainer"><button onClick={this.startSimulation} className="simulationButton">Start Simulation</button></div>
+              <div style={this.state.startSimulationMode ?{display:'inline-block'} : {display:'none'}} className="simulationButtonContainer"><button onClick={this.sendUpdates} className="simulationButton">Apply</button></div>
+              <div style={this.state.startSimulationMode ?{display:'inline-block'} : {display:'none'}} className="simulationButtonContainer"><button onClick={this.sendUpdates} className="simulationButton">Stop Simulation</button></div>
+            </div>
             <div className="bodycontainer">
               <div className="inputContainer">
-                <div className="simulationButtonContainer"><button onClick={this.startSimulation} className="simulationButton">Start Simulation</button></div>
-                <div className="simulationButtonContainer"><button onClick={this.sendUpdates} className="simulationButton">Apply</button></div>
                 {
                   this.state.data.inputs !== undefined ?
                   Object.keys(this.state.data.inputs).map((key,i) => {
@@ -327,12 +332,17 @@ class App extends Component {
                 }
               </div>
             </div>
+            <div className="logContainer">
+              <p>>_dummy text</p>
+              <p>>_dummy text</p>
+              <p>>_dummy text</p>
+              <p>>_dummy text</p>
+              <p>>_dummy text</p>
+              <p>>_dummy text</p>
+            </div>
+          </div>
           </div>
 
-          <div>
-            <div className="logContainer"></div>
-          </div>
-        </div>
     );
   }
 }
