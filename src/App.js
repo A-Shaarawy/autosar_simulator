@@ -21,7 +21,7 @@ class App extends Component {
         "SInt16": { "lower": "-32768", "upper": "32767" },
         "UInt16": { "lower": "0", "upper": "65535" },
         "SInt32": { "lower": "-2147483648", "upper": "2147483647" },
-        "UInt32": { "lower": "0", "upper": "4294967295" }
+        "UInt32": { "lower": "0", "upper": "4294967295" },
        }
 
     }
@@ -49,7 +49,7 @@ class App extends Component {
       let data = new FormData();
       var tempArrayIn={} 
       var tempArrayOut={} 
-      data.append('project_id', 16);
+      data.append('project_id', 17);
       axios.post('/simulate/get/', data)
       .then(results =>{
       Object.keys(results.data.inputs).map((key,i) => {
@@ -109,7 +109,7 @@ class App extends Component {
     axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
     axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
     let data = new FormData();
-    data.append('project_id', 16);
+    data.append('project_id', 17);
   
     axios.post('/simulate/getvalues/', data)
     .then(results =>{
@@ -142,8 +142,8 @@ class App extends Component {
     axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
     axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
     let data = new FormData();
-    data.append('project_id', 16);
-    data.append('values', JSON.stringify(this.state.valuesIn));
+    data.append('project_id', 17);
+    data.append('values', JSON.stringify(this.state.valuesIn, Object.keys(this.state.valuesIn).sort()));
   
     axios.post('/simulate/setvalues/', data)
     .then(results =>{
@@ -159,7 +159,7 @@ class App extends Component {
     })
   }
 
-  getInputValue(event,k,i,name){
+  getInputValue(event,name){
     var stateCopy = Object.assign({},this.state);
     stateCopy.valuesIn[name] = event.target.value;
     this.setState(stateCopy);
@@ -170,6 +170,7 @@ class App extends Component {
     var stateCopy = Object.assign({},this.state);
     stateCopy.valuesIn[name] = e.target.value;
     this.setState(stateCopy);
+    console.log(this.state)
   }
 
   setBoolValue(e,name){
@@ -196,6 +197,23 @@ class App extends Component {
         </div>
       )
     }
+    else if(input.type==="Float"){
+      return(
+        <div> 
+        <div>
+          <div className="sliderContainer">
+          <div className="keyContainer">
+            <h3>Port: {key} </h3>
+            </div>
+            <input type="range"  min= "-1000000" max="1000000" value={this.state.valuesIn[input.name]} step="0.001" onChange={(e)=>this.setValue(e,input.name)}/>
+            <input type="text" value={this.state.valuesIn[input.name]} onChange= {(e) => this.getInputValue(e,input.name)}/>
+            <div><h5>{input.name}</h5></div>
+          </div>
+        </div>
+        <hr/>
+        </div>
+      )
+    }
     else{
       return(
         <div> 
@@ -204,7 +222,7 @@ class App extends Component {
           <div className="keyContainer">
             <h3>Port: {key} </h3>
             </div>
-            <input type="range"  min={this.state.integer_types[input.type].lower} max={this.state.integer_types[input.type].upper} value={this.state.valuesIn[input.name]} step="1" onChange={(e)=>this.setValue(e,key,index,input.name)}/>
+            <input type="range"  min={this.state.integer_types[input.type].lower} max={this.state.integer_types[input.type].upper} value={this.state.valuesIn[input.name]} step="1" onChange={(e)=>this.setValue(e,input.name)}/>
             <input type="text" value={this.state.valuesIn[input.name]} onChange= {(e) => this.getInputValue(e,input.name)}/>
             <div><h5>{input.name}</h5></div>
           </div>
@@ -251,8 +269,8 @@ class App extends Component {
     axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
     axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
     let data = new FormData();
-    data.append('project_id', 16);
-    data.append('values', JSON.stringify(this.state.valuesIn));
+    data.append('project_id', 17);
+    data.append('values', JSON.stringify(this.state.valuesIn, Object.keys(this.state.valuesIn).sort()));
     axios.post('/simulate/start/', data)
     .then(results =>{
       console.log("results: ",results)
@@ -272,7 +290,7 @@ class App extends Component {
   render(){
     return (
         <div>
-          <ReactInterval timeout={25} enabled={this.state.enableTimers} callback={this.requestUpdates}/>
+          <ReactInterval timeout={100} enabled={this.state.enableTimers} callback={this.requestUpdates}/>
           <div>
             <div>
               <Header/>
