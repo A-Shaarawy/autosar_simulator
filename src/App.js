@@ -10,7 +10,6 @@ class App extends Component {
     super(props,context);
     this.state={
       data: {},
-      led: false,
       startSimulationMode:false,
       inputValue: 0,
       enableTimers: false,
@@ -23,7 +22,8 @@ class App extends Component {
         "UInt16": { "lower": "0", "upper": "65535" },
         "SInt32": { "lower": "-2147483648", "upper": "2147483647" },
         "UInt32": { "lower": "0", "upper": "4294967295" },
-       }
+       },
+      logging:[]
 
     }
     this.startSimulation = this.startSimulation.bind(this);
@@ -44,13 +44,13 @@ class App extends Component {
   }
 
   componentWillMount(){
-      axios.defaults.baseURL = 'http://autosar-studio-backend.herokuapp.com';
+      axios.defaults.baseURL = 'http://localhost:5000';
       axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
       axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
       let data = new FormData();
       var tempArrayIn={} 
       var tempArrayOut={} 
-      data.append('project_id', 17);
+      data.append('project_id', 12);
       axios.post('/simulate/get/', data)
       .then(results =>{
       Object.keys(results.data.inputs).map((key,i) => {
@@ -110,24 +110,25 @@ class App extends Component {
     axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
     axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
     let data = new FormData();
-    data.append('project_id', 17);
+    data.append('project_id', 12);
     axios.post('/simulate/getvalues/', data)
     .then(results =>{
-     console.log("request ",results)
-      Object.keys(results.data).map((key,i) => {
-            console.log("state ",this.state)
+      var outputs = JSON.parse(results.data.output)
+      console.log(results.data)
+      Object.keys(outputs).map((key,i) => {
             var tempCopy =  this.state
-            if (results.data[key] === "True")
+            if (outputs[key] === "True")
             {
               tempCopy.valuesOut[key] = true
             }
-            else if (results.data[key] === "False")
+            else if (outputs[key] === "False")
             {
               tempCopy.valuesOut[key] = false
             }
             else {
-              tempCopy.valuesOut[key] = results.data[key]
+              tempCopy.valuesOut[key] = outputs[key]
             }
+            tempCopy.logging = tempCopy.logging.concat(results.data.logging)
             this.setState(tempCopy)
             return 0
     })
@@ -142,7 +143,7 @@ class App extends Component {
     axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
     axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
     let data = new FormData();
-    data.append('project_id', 17);
+    data.append('project_id', 12);
     data.append('values', JSON.stringify(this.state.valuesIn, Object.keys(this.state.valuesIn).sort()));
     axios.post('/simulate/setvalues/', data)
     .then(results =>{
@@ -270,7 +271,7 @@ class App extends Component {
     axios.defaults.headers.common['Authorization'] = "Token c7aed2d669185df2ae09cf25fb4d039c7619463c";
     axios.defaults.headers.common['Content-Type'] = "application/x-www-form-urlencoded";
     let data = new FormData();
-    data.append('project_id', 17);
+    data.append('project_id', 12);
     data.append('values', JSON.stringify(this.state.valuesIn, Object.keys(this.state.valuesIn).sort()));
     axios.post('/simulate/start/', data)
     .then(results =>{
@@ -285,22 +286,23 @@ class App extends Component {
   disableTimers(){
     //console.log("ethbat makank")
     this.setState({
-      enableTimers: false
+      enableTimers: false,
+      startSimulationMode:false
     })
 
   }
   render(){
     return (
         <div>
-          <ReactInterval timeout={100} enabled={this.state.enableTimers} callback={this.requestUpdates}/>
+          <ReactInterval timeout={1000} enabled={this.state.enableTimers} callback={this.requestUpdates}/>
           <div>
             <div>
               <Header/>
             </div>
             <div className="buttonsAreaSimulator">
-              <div className="simulationButtonContainer"><button onClick={this.startSimulation} className="simulationButton">Start Simulation</button></div>
+              <div className="simulationButtonContainer" style={this.state.startSimulationMode ?{display:'none'} : {display:'inline-block'}}><button onClick={this.startSimulation} className="simulationButton">Start Simulation</button></div>
               <div style={this.state.startSimulationMode ?{display:'inline-block'} : {display:'none'}} className="simulationButtonContainer"><button onClick={this.sendUpdates} className="simulationButton">Apply</button></div>
-              <div style={this.state.startSimulationMode ?{display:'inline-block'} : {display:'none'}} className="simulationButtonContainer"><button onClick={this.sendUpdates} className="simulationButton">Stop Simulation</button></div>
+              <div style={this.state.startSimulationMode ?{display:'inline-block'} : {display:'none'}} className="simulationButtonContainer"><button onClick={this.disableTimers} className="simulationButton">Stop Simulation</button></div>
             </div>
             <div className="bodycontainer">
               <div className="inputContainer">
@@ -333,12 +335,13 @@ class App extends Component {
               </div>
             </div>
             <div className="logContainer">
-              <p>>_dummy text</p>
-              <p>>_dummy text</p>
-              <p>>_dummy text</p>
-              <p>>_dummy text</p>
-              <p>>_dummy text</p>
-              <p>>_dummy text</p>
+                {
+                  this.state.logging.map((line,i) => {
+                    return(
+                    <p key={i}>> {line}</p>
+                     )
+                  })
+                }
             </div>
           </div>
           </div>
